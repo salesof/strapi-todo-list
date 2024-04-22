@@ -8,6 +8,7 @@ export const GETQUERY = gql`
         attributes {
           todoText
           createdAt
+          dueDate
         }
       }
     }
@@ -15,13 +16,14 @@ export const GETQUERY = gql`
 `;
 
 export const ADDMUT = gql`
-  mutation createTodo($todoText: String) {
-    createTodo(data: { todoText: $todoText }) {
+  mutation createTodo($todoText: String!, $dueDate: Date!) {
+    createTodo(data: { todoText: $todoText, dueDate: $dueDate }) {
       data {
         id
         attributes {
           todoText
           createdAt
+          dueDate
         }
       }
     }
@@ -29,13 +31,14 @@ export const ADDMUT = gql`
 `;
 
 export const UPDATEMUT = gql`
-  mutation updateTodo($id: ID!, $todoText: String!) {
-    updateTodo(id: $id, data: { todoText: $todoText }) {
+  mutation updateTodo($id: ID!, $todoText: String!, $dueDate: Date!) {
+    updateTodo(id: $id, data: { todoText: $todoText, dueDate: $dueDate }) {
       data {
         id
         attributes {
           todoText
           createdAt
+          dueDate
         }
       }
     }
@@ -50,6 +53,7 @@ export const DELETEMUT = gql`
         attributes {
           todoText
           createdAt
+          dueDate
         }
       }
     }

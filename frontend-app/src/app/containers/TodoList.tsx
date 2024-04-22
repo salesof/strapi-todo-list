@@ -3,16 +3,16 @@ import TodoItem from "../components/TodoItem";
 
 interface ListTodo {
   todos: any;
-  editTodoItem: any;
   deleteTodoItem: any;
 }
-function TodoList({ todos, editTodoItem, deleteTodoItem }: ListTodo) {
+
+function TodoList({ todos, deleteTodoItem }: ListTodo) {
   return (
     <div className="todoListContainer">
-      <div className="todosText">Todos</div>
+      <h2 className="todosText">Todos</h2>
       {todos
         ?.sort((a: any, b: any) =>
-          b.attributes.createdAt.localeCompare(a.attributes.createdAt)
+          a.attributes.dueDate.localeCompare(b.attributes.dueDate)
         )
         .map((todo: any) => {
           return (
@@ -20,7 +20,6 @@ function TodoList({ todos, editTodoItem, deleteTodoItem }: ListTodo) {
               todo={todo}
               key={todo.id}
               deleteTodoItem={deleteTodoItem}
-              editTodoItem={editTodoItem}
             />
           );
         })}
