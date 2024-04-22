@@ -15,6 +15,10 @@
     "todoText": {
       "type": "string",
       "required": true
+    },
+    "dueDate": {
+      "type": "date",
+      "required": true
     }
   }
 }
