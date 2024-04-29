@@ -1,16 +1,24 @@
 // src/app/page.tsx
 "use client";
 import { useEffect, useState } from "react";
-import AddTodo from "./containers/AddTodo";
+import NewTodoForm from "./containers/NewTodoForm";
 import TodoList from "./containers/TodoList";
 import { useQuery } from "@apollo/experimental-nextjs-app-support/ssr";
-import { ADDMUT, DELETEMUT, GETQUERY } from "@/query/schema";
+import { ADDMUT, DELETEMUT, GETQUERY, UPDATEMUT } from "@/query/schema";
 import { useMutation } from "@apollo/client";
 
+export interface Todo {
+  id: string;
+  attributes: {
+    todoText: string;
+    dueDate: string;
+  };
+}
 export default function Home() {
-  const [todos, setTodos] = useState<[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [createTodo] = useMutation(ADDMUT);
   const [deleteMUT] = useMutation(DELETEMUT);
+  const [updateTodo] = useMutation(UPDATEMUT);
 
   const { loading, error, data } = useQuery(GETQUERY, {
     fetchPolicy: "no-cache",
@@ -32,6 +40,39 @@ export default function Home() {
     });
   };
 
+  const editTodoItem = async (
+    todo: any,
+    newTodoText: string,
+    newDueDate: Date
+  ) => {
+    if (newTodoText != null && newDueDate != null) {
+      await updateTodo({
+        //updating the todo
+        variables: {
+          id: todo.id,
+          todoText: newTodoText,
+          dueDate: newDueDate.toISOString().split("T")[0], // Convert Date to string
+        },
+      })
+        .then(({ data }: any) => {
+          const updatedTodo = data?.updateTodo?.data;
+          // Update the todos list
+          const moddedTodos = todos.map((_todo) => {
+            if (_todo.id === updatedTodo.id) {
+              return updatedTodo;
+            } else {
+              return _todo;
+            }
+          });
+          setTodos(moddedTodos);
+        })
+        .catch((error) => {
+          // Handle error if necessary
+          console.error("Error updating todo:", error);
+        });
+    }
+  };
+
   const deleteTodoItem = async (todo: any) => {
     if (confirm("Do you really want to delete this item?")) {
       await deleteMUT({
@@ -49,8 +90,12 @@ export default function Home() {
   return (
     <div>
       <main className="main">
-        <AddTodo addTodo={addTodo} />
-        <TodoList todos={todos} deleteTodoItem={deleteTodoItem} />
+        <NewTodoForm addTodo={addTodo} />
+        <TodoList
+          todos={todos}
+          deleteTodoItem={deleteTodoItem}
+          editTodoItem={editTodoItem}
+        />
       </main>
     </div>
   );

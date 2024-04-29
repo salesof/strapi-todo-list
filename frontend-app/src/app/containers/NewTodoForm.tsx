@@ -1,11 +1,12 @@
 import { useState } from "react";
 
-function AddTodo({
+function NewTodoForm({
   addTodo,
 }: {
   addTodo: (todoText: string, dueDate: string) => void;
 }) {
   const [todo, setTodo] = useState({ todo: "", dueDate: "" });
+  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -13,10 +14,16 @@ function AddTodo({
   };
 
   const handleSubmit = () => {
+    // Check if both fields are filled out
+    if (!todo.todo || !todo.dueDate) {
+      setError("Both fields are required.");
+      return;
+    }
     // Call the addTodo function with the todoText and dueDate
     addTodo(todo.todo, todo.dueDate);
     // Clear the input fields after adding the todo
     setTodo({ todo: "", dueDate: "" });
+    setError("");
   };
 
   return (
@@ -28,7 +35,6 @@ function AddTodo({
           placeholder="Add new todo here"
           id="todoText"
           name="todo"
-          required
           value={todo.todo}
           onChange={handleChange}
         />
@@ -39,10 +45,12 @@ function AddTodo({
           type="date"
           id="dueDate"
           name="dueDate"
-          required
           value={todo.dueDate}
+          min={new Date().toISOString().split("T")[0]} // Set min value to today's date
           onChange={handleChange}
         />
+
+        {error && <div className="errorContainer">{error}</div>}
 
         <div className="centeringWrapper">
           <input
@@ -57,4 +65,4 @@ function AddTodo({
   );
 }
 
-export default AddTodo;
+export default NewTodoForm;

@@ -1,8 +1,6 @@
 // src/components/Popup.tsx
 
 import { useState } from "react";
-import { UPDATEMUT } from "@/query/schema";
-import { useMutation } from "@apollo/client";
 
 interface PopupProps {
   isOpen: boolean;
@@ -10,6 +8,7 @@ interface PopupProps {
   todoText: string;
   dueDate: Date;
   todo: any;
+  editTodoItem: (todo: any, newTodoText: string, newDueDate: Date) => void;
 }
 
 export default function Popup({
@@ -18,49 +17,22 @@ export default function Popup({
   todoText,
   dueDate,
   todo,
+  editTodoItem,
 }: PopupProps) {
   const [newTodoText, setNewTodoText] = useState<string>(todoText);
   const [newDueDate, setNewDueDate] = useState<Date>(new Date(dueDate));
-  const [todos, setTodos] = useState<any[]>([]);
-  const [updateTodo] = useMutation(UPDATEMUT);
+  const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
   const handleSubmit = () => {
-    // Call the editTodoItem function with the updated values from state
-    editTodoItem(todo, newTodoText, newDueDate);
-  };
-
-  const editTodoItem = async (
-    todo: any,
-    newTodoText: string,
-    newDueDate: Date
-  ) => {
-    if (newTodoText != null && newDueDate != null) {
-      await updateTodo({
-        //updating the todo
-        variables: {
-          id: todo.id,
-          todoText: newTodoText,
-          dueDate: newDueDate.toISOString().split("T")[0], // Convert Date to string
-        },
-      })
-        .then(({ data }: any) => {
-          const updatedTodo = data?.updateTodo?.data;
-          // Update the todos list
-          const moddedTodos = todos.map((_todo) => {
-            if (_todo.id === updatedTodo.id) {
-              return updatedTodo;
-            } else {
-              return _todo;
-            }
-          });
-          setTodos(moddedTodos);
-        })
-        .catch((error) => {
-          // Handle error if necessary
-          console.error("Error updating todo:", error);
-        });
+    // Check if both fields are filled out
+    if (!newTodoText || !newDueDate) {
+      setError("Both fields are required.");
+    } else {
+      // Call the editTodoItem function with the updated values from state
+      editTodoItem(todo, newTodoText, newDueDate);
+      onClose(); // Close the popup after successful update
     }
   };
 
@@ -86,8 +58,11 @@ export default function Popup({
             type="date"
             id="dueDate"
             value={newDueDate.toISOString().split("T")[0]} // Convert Date to string
+            min={new Date().toISOString().split("T")[0]} // Set min value to today's date
             onChange={(e) => setNewDueDate(new Date(e.target.value))}
           />
+
+          {error && <div className="errorContainer">{error}</div>}
 
           <div className="centeringWrapper">
             <button
@@ -96,7 +71,6 @@ export default function Popup({
               // Call handleSubmit and close the popup when the button is clicked
               onClick={() => {
                 handleSubmit();
-                onClose();
               }}
             >
               Update

@@ -1,14 +1,14 @@
 // src/coomponents/TodoItem.tsx
 
 import React from "react";
-import Popup from "./Popup";
 
 interface ItemTodoProps {
   todo: any;
   deleteTodoItem: FunctionStringCallback;
+  handleOpen: () => void;
 }
 
-function TodoItem({ todo, deleteTodoItem }: ItemTodoProps) {
+function TodoItem({ todo, deleteTodoItem, handleOpen }: ItemTodoProps) {
   const dueDate = todo.attributes.dueDate;
   let d = new Date(dueDate);
   let formatDueDate = d.toLocaleDateString("fi-FI", {
@@ -16,16 +16,6 @@ function TodoItem({ todo, deleteTodoItem }: ItemTodoProps) {
     day: "2-digit",
     year: "numeric",
   });
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   return (
     <>
@@ -52,13 +42,6 @@ function TodoItem({ todo, deleteTodoItem }: ItemTodoProps) {
           </i>
         </div>
       </div>
-      <Popup
-        isOpen={open}
-        onClose={handleClose}
-        todoText={todo.attributes.todoText}
-        dueDate={todo.attributes.dueDate}
-        todo={todo}
-      />
     </>
   );
 }
